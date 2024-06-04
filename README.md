@@ -163,8 +163,8 @@ curl "localhost:3000/api/search?q=olympic gold medal&category=SPORTS"
 ```sh
 npm run dev
 ```
-
 ```output
   VITE ready in 138 ms
   ➜  Local:   http://localhost:5173/
 ```
+<img width="1112" alt="YugaNews Archives" src="https://github.com/YugabyteDB-Samples/ollama-news-archive/assets/2041330/69d95b77-f59d-4f4a-b7ca-2f0333f35890">
