@@ -8,11 +8,11 @@ const port = process.env.PORT || 3000;
 
 // Set up PostgreSQL connection
 const pool = new Pool({
-  user: "postgres",
+  user: "yugabyte",
   // database?: string | undefined;
-  port: 5432,
-  host: "127.0.0.1",
-  password: "mysecretpassword",
+  port: 5433,
+  host: "127.0.1.1",
+  password: "yugabyte",
   // ssl: boolean;
 });
 
