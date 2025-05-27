@@ -11,3 +11,5 @@ CREATE TABLE
         date date,
         embeddings vector (768)
     );
+
+CREATE INDEX NONCONCURRENTLY ON news_stories USING ybhnsw (embeddings vector_cosine_ops);
