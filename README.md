@@ -22,12 +22,14 @@ Download the application and provide settings specific to your deployment:
 2. Install the application dependencies.
 
    ```sh
+   cd ollama-news-archive
+   git lfs fetch --all
    npm install
    cd backend/ && npm install
-   cd news-app-ui/ && npm install
+   cd ../news-app-ui/ && npm install
    ```
 
-3. Configure the application environment variables in `{project_directory/backend/.env}`.
+3. Configure the application environment variables in `{project_directory/backend/index.js}`.
 
 ## Set up YugabyteDB
 
@@ -39,21 +41,21 @@ mkdir ~/yb_docker_data
 
 docker network create custom-network
 
-docker run -d --name yugabytedb-node1 --net custom-network \
+docker run -d --name yugabytedb-node1 --hostname yugabytedb-node1 --net custom-network \
     -p 15433:15433 -p 7001:7000 -p 9001:9000 -p 5433:5433 \
     -v ~/yb_docker_data/node1:/home/yugabyte/yb_data --restart unless-stopped \
     yugabytedb/yugabyte:{{< yb-version version="preview" format="build">}} \
     bin/yugabyted start \
     --base_dir=/home/yugabyte/yb_data --background=false
 
-docker run -d --name yugabytedb-node2 --net custom-network \
+docker run -d --name yugabytedb-node2 --hostname yugabytedb-node2 --net custom-network \
     -p 15434:15433 -p 7002:7000 -p 9002:9000 -p 5434:5433 \
     -v ~/yb_docker_data/node2:/home/yugabyte/yb_data --restart unless-stopped \
     yugabytedb/yugabyte:{{< yb-version version="preview" format="build">}} \
     bin/yugabyted start --join=yugabytedb-node1 \
     --base_dir=/home/yugabyte/yb_data --background=false
 
-docker run -d --name yugabytedb-node3 --net custom-network \
+docker run -d --name yugabytedb-node3 --hostname yugabytedb-node3 --net custom-network \
     -p 15435:15433 -p 7003:7000 -p 9003:9000 -p 5435:5433 \
     -v ~/yb_docker_data/node3:/home/yugabyte/yb_data --restart unless-stopped \
     yugabytedb/yugabyte:{{< yb-version version="preview" format="build">}} \
@@ -97,20 +99,20 @@ This application requires a database table with information about news stories. 
 1. Copy the schema to the first node's Docker container.
 
    ```sh
-   docker cp {project_dir}/database/schema.sql yugabytedb-node1:/home/database
+   docker cp {project_dir}/database/schema.sql yugabytedb-node1:/home/db_schema.sql
    ```
 
 2. Copy the seed data file to the Docker container.
 
    ```sh
-   docker cp {project_dir}/sql/data.csv yugabytedb-node1:/home/database
+   {project_dir}/.git/lfs/objects/21/bb/21bbebed1d66c3cad2100ceeee82ac0034dfb806b52043fab7b64b79940d5863 yugabytedb-node1:/home/db_data.csv
    ```
 
 3. Execute the SQL files against the database.
 
    ```sh
-   docker exec -it yugabytedb-node1 bin/ysqlsh -h yugabytedb-node1 -f /home/database/schema.sql
-   docker exec -it yugabytedb-node1 bin/ysqlsh -h yugabytedb-node1 -c "\COPY news_stories(link,headline,category,short_description,authors,date,embeddings) from '/home/database/data.csv' DELIMITER ',' CSV HEADER;"
+   docker exec -it yugabytedb-node1 bin/ysqlsh -h yugabytedb-node1 -f /home/db_schema.sql
+   docker exec -it yugabytedb-node1 bin/ysqlsh -h yugabytedb-node1 -c "\COPY news_stories(link,headline,category,short_description,authors,date,embeddings) from '/home/db_data.csv' DELIMITER ',' CSV HEADER;"
    ```
 
 ## Start the application
